@@ -1,0 +1,3 @@
+[submodule "_plugins/haml"]
+	path = _plugins/haml
+	url = git@gist.github.com:2439399.git
