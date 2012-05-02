@@ -1,5 +1,14 @@
 ---
 layout: default
-title: Home
+title: Programming Life
 ---
-Testytest
+
+<div id="content">
+    <ul id="posts">
+        {% for post in site.posts %}
+            <li>
+                <a href="{{ post.url }}">{{ post.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
