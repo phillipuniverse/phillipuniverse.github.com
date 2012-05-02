@@ -1,6 +1,5 @@
 safe:           false
 url:            "http://phillipuniverse.com"
-server:         true
 server-port:    4000
 markdown:       kramdown
 pygments:       true
