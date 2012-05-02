@@ -1,4 +1,4 @@
-safe:           false
+#safe:           false
 url:            "http://phillipuniverse.com"
 server-port:    4000
 markdown:       kramdown
