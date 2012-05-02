@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: Deploying Broadleaf Commerce on Heroku
 tags: programming, Java, Broadleaf, Spring, Maven
 ---
