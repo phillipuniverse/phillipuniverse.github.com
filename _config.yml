@@ -1,1 +1,8 @@
-pygments: true
+safe:           false
+url:            "http://phillipuniverse.com"
+server:         true
+server-port:    4000
+markdown:       kramdown
+pygments:       true
+paginate:       10
+source:         .
