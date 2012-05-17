@@ -1,10 +1,10 @@
 ---
 layout: post
 title: Deploying Broadleaf Commerce on Heroku
-tags: programming, Java, Broadleaf, Spring, Maven
+tags: programming, java, broadleaf, work
 ---
 
-This post is exactly what the title says; a short how-to to deploy [Broadleaf](http://www.broadleafcommerce.org) to Heroku, a popular cloud platform. This has been done with the Braodleaf 1.6.0 and all the CLI commands were run on OSX, but the commands should be 1-1 for Linux. If you use Windows, you're gonna have a bad time.
+This post is exactly what the title says; a short how-to to deploy [Broadleaf](http://www.broadleafcommerce.org) to Heroku, a popular cloud platform. This has been done with the Broadleaf 1.6.0 and all the CLI commands were run on OSX, but the commands should be 1-1 for Linux. If you use Windows, you're gonna have a bad time.
 
 First, let's pop open a command line and build the archetype with maven with the following command:
 
@@ -107,7 +107,7 @@ While we're on the subject of slug size, I found a nice plugin for helping reduc
 
 Now let's go in and make the necessary database config changes to work with Heroku.
 
-applicationContext.xml original:
+applicationContext.xml diff:
 {% highlight diff %}
 diff --git a/site-war/src/main/webapp/WEB-INF/applicationContext.xml b/site-war/src/main/webapp/WEB-INF/applicationContext.xml
 index 51dba06..9dcd367 100644
@@ -144,6 +144,94 @@ index 51dba06..9dcd367 100644
         </bean>
  
      <bean id="blCacheManager"
+{% endhighlight %}
+
+You'll also need to change the HSQLDialect to PostgreSQLDialect in the persistence xmls and add the dependency in your poms.
+
+So in the main persistence-mycompany.xml:
+{% highlight diff %}
+diff --git a/site-war/src/main/resources/META-INF/persistence-mycompany.xml b/site-war/src/main/resources/META-INF/persistence-mycompany.xml
+index 326c52b..d360adb 100644
+--- a/site-war/src/main/resources/META-INF/persistence-mycompany.xml
++++ b/site-war/src/main/resources/META-INF/persistence-mycompany.xml
+@@ -9,7 +9,7 @@
+                <exclude-unlisted-classes/>
+                <properties>
+             <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
++            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+             <property name="hibernate.show_sql" value="false"/>
+             <property name="hibernate.cache.use_second_level_cache" value="true"/>
+             <property name="hibernate.cache.use_query_cache" value="true"/>
+@@ -29,7 +29,7 @@
+                <exclude-unlisted-classes/>
+                <properties>
+             <property name="hibernate.hbm2ddl.auto" value="update"/>
+-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
++            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+             <property name="hibernate.show_sql" value="false"/>
+         </properties>
+        </persistence-unit>
+@@ -40,7 +40,7 @@
+                <exclude-unlisted-classes/>
+                <properties>
+             <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
++            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+             <property name="hibernate.show_sql" value="false"/>
+             <property name="hibernate.hbm2ddl.import_files" value="/sql/import_storage.sql"/>
+         </properties>
+{% endhighlight %}
+
+You'll also need to do a similar change in the test persistence xml:
+{% highlight diff %}
+diff --git a/test/src/test/resources/META-INF/persistence-mycompany-test.xml b/test/src/test/resources/META-INF/persistence-mycompany-test.xml
+index 8ddec75..3fd2015 100644
+--- a/test/src/test/resources/META-INF/persistence-mycompany-test.xml
++++ b/test/src/test/resources/META-INF/persistence-mycompany-test.xml
+@@ -8,8 +8,8 @@
+                <exclude-unlisted-classes/>
+                <properties>
+                        <property name="hibernate.hbm2ddl.auto" value="update"/>
+-            <property name="hibernate.show_sql" value="true"/>
+-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
++            <property name="hibernate.show_sql" value="false"/>
++            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+         </properties>
+        </persistence-unit>
+        
+@@ -18,8 +18,8 @@
+                <exclude-unlisted-classes/>
+                <properties>
+             <property name="hibernate.hbm2ddl.auto" value="update"/>
+-            <property name="hibernate.show_sql" value="true"/>
+-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
++            <property name="hibernate.show_sql" value="false"/>
++            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+         </properties>
+        </persistence-unit>
+ </persistence>
+{% endhighlight %}
+
+Then completely remove the HSQL dependency and declare the PostgreSQL dependency version in the root pom.xml:
+
+{% highlight xml %}
+<dependency>
+    <groupId>postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>8.4-702.jdbc3</version>
+    <type>jar</type>
+    <scope>compile</scope>
+</dependency>
+{% endhighlight %}
+
+And in site-war/pom.xml and test/pom.xml also remove the HSQL dependency declaration and add the PostgreSQL dependency there:
+
+{% highlight xml %}
+<dependency>
+    <groupId>postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+</dependency>
 {% endhighlight %}
 
 Now comes a tricky part. The nice thing about Heroku is that you can use it with any number of applications: Ruby, Node, Java, Python, whatever. But this is a double-edged sword: Heroku doesn't give you a nice application server (like Tomcat or Jetty) to deploy to out of the box. You have to include it yourself in your Maven profiles. The Heroku documentation explicitly talks about using embedded Jetty, but I couldn't get that to work and prefer Tomcat anyway.  The Maven execution that I added for Tomcat actually goes out and downloads a Tomcat zip, unpacks it, then deploys your war inside of it as ROOT. This is achieved with the codehaus cargo plugin:
@@ -254,4 +342,6 @@ http://glowing-river-8401.herokuapp.com/ | git@heroku.com:glowing-river-8401.git
 Git remote heroku added 
 {% endhighlight %}
 
-Then just deploy with git push heroku and you're done! To check for startup problems, you can tail the logs with heroku logs --tail which shows you the real-time logging info
+Then just deploy with 'git push heroku' and you're done! To check for startup problems, you can tail the logs with heroku logs --tail which shows you the real-time logging info.
+
+Feel free to check out the demo [currently running on Heroku](http://broadleaf.heroku.com). This is just on the free Heroku tier so it might take a bit to come up. If you run into any issues, you can send me a pull request via the [GitHub project](https://github.com/phillipuniverse/broadleaf-heroku).
