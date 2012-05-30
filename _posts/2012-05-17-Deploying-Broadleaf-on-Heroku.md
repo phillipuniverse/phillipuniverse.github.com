@@ -4,7 +4,7 @@ title: Deploying Broadleaf Commerce on Heroku
 tags: programming, java, broadleaf, work
 ---
 
-This post is exactly what the title says; a short how-to to deploy [Broadleaf](http://www.broadleafcommerce.org) to Heroku, a popular cloud platform. This has been done with the Broadleaf 1.6.0 and all the CLI commands were run on OSX, but the commands should be 1-1 for Linux. If you use Windows, you're gonna have a bad time.
+This post is exactly what the title says; a short how-to to deploy [Broadleaf Commerce](http://www.broadleafcommerce.org) to Heroku, a popular cloud platform. This has been done with the Broadleaf 1.6.0 archetype and all the CLI commands were run on OSX, but the commands should be 1-1 for Linux. If you use Windows, you're gonna have a bad time.
 
 First, let's pop open a command line and build the archetype with maven with the following command:
 
