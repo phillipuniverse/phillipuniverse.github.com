@@ -2,6 +2,9 @@
 url:            "http://phillipuniverse.com"
 server-port:    4000
 markdown:       kramdown
-pygments:       true
+kramdown:
+  input: GFM
+highlighter:       true
 paginate:       10
 source:         .
+gems: [jekyll-paginate]
